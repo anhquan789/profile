@@ -21,6 +21,9 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
@@ -124,7 +127,7 @@
                     <div class="about-info">
                         <div class="info-item">
                             <i class="fas fa-birthday-cake"></i>
-                            <span>Tuổi: 25</span>
+                            <span>Tuổi: 27</span>
                         </div>
                         <div class="info-item">
                             <i class="fas fa-map-marker-alt"></i>
@@ -132,11 +135,11 @@
                         </div>
                         <div class="info-item">
                             <i class="fas fa-envelope"></i>
-                            <span>Email: your.email@example.com</span>
+                            <span>Email: phamquan98tk@gmail.com</span>
                         </div>
                         <div class="info-item">
                             <i class="fas fa-phone"></i>
-                            <span>Phone: +84 xxx xxx xxx</span>
+                            <span>Phone: (+81)90 1736 1998</span>
                         </div>
                     </div>
                     <div class="about-buttons">
@@ -523,14 +526,14 @@
 
                 <div class="contact-form">
                     <h3>Gửi tin nhắn</h3>
-                    <form id="contact-form">
+                    <form id="contact-form" novalidate>
                         <div class="form-group">
-                            <input type="text" id="name" name="name" placeholder="Họ và tên" required>
-                            <label for="name">Họ và tên</label>
+                            <input type="text" id="from_name" name="from_name" placeholder="Họ và tên" required>
+                            <label for="from_name">Họ và tên</label>
                         </div>
                         <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder="Email" required>
-                            <label for="email">Email</label>
+                            <input type="email" id="from_email" name="from_email" placeholder="Email" required>
+                            <label for="from_email">Email</label>
                         </div>
                         <div class="form-group">
                             <input type="text" id="subject" name="subject" placeholder="Chủ đề" required>
@@ -540,9 +543,13 @@
                             <textarea id="message" name="message" placeholder="Tin nhắn" rows="5" required></textarea>
                             <label for="message">Tin nhắn</label>
                         </div>
-                        <button type="submit" class="btn btn-primary">
+                        <!-- Hidden field để lưu thông tin người nhận -->
+                        <input type="hidden" name="to_name" value="Quan Pham">
+                        <input type="hidden" name="to_email" value="phamquan98tk@gmail.com">
+                        
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
                             <i class="fas fa-paper-plane"></i>
-                            Gửi tin nhắn
+                            <span class="btn-text">Gửi tin nhắn</span>
                         </button>
                     </form>
                 </div>

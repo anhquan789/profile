@@ -195,20 +195,35 @@ function filterProjects(category) {
     });
 }
 
+// EmailJS Configuration
+const EMAILJS_CONFIG = {
+    SERVICE_ID: 'service_quan_profile', // Bạn cần tạo service trên EmailJS
+    TEMPLATE_ID: 'template_quan_profile', // Bạn cần tạo template trên EmailJS
+    PUBLIC_KEY: 'YOUR_EMAILJS_PUBLIC_KEY' // Bạn cần lấy public key từ EmailJS
+};
+
+// Initialize EmailJS
+function initEmailJS() {
+    // Khởi tạo EmailJS với public key
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+    }
+}
+
 // Form Validation
 function validateForm(formData) {
     const errors = {};
     
-    if (!formData.get('name').trim()) {
-        errors.name = 'Vui lòng nhập họ và tên';
+    if (!formData.get('from_name').trim()) {
+        errors.from_name = 'Vui lòng nhập họ và tên';
     }
     
-    const email = formData.get('email').trim();
+    const email = formData.get('from_email').trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
-        errors.email = 'Vui lòng nhập email';
+        errors.from_email = 'Vui lòng nhập email';
     } else if (!emailRegex.test(email)) {
-        errors.email = 'Email không hợp lệ';
+        errors.from_email = 'Email không hợp lệ';
     }
     
     if (!formData.get('subject').trim()) {
@@ -249,8 +264,92 @@ function clearFormErrors() {
     });
 }
 
-// Show Success Message
-function showSuccessMessage() {
+// Send Email using EmailJS
+async function sendEmail(formData) {
+    try {
+        // Kiểm tra xem EmailJS đã được load chưa
+        if (typeof emailjs === 'undefined') {
+            throw new Error('EmailJS chưa được tải. Vui lòng thử lại sau.');
+        }
+
+        // Chuẩn bị template parameters
+        const templateParams = {
+            from_name: formData.get('from_name'),
+            from_email: formData.get('from_email'),
+            to_name: formData.get('to_name'),
+            to_email: formData.get('to_email'),
+            subject: formData.get('subject'),
+            message: formData.get('message'),
+            reply_to: formData.get('from_email')
+        };
+
+        // Gửi email
+        const response = await emailjs.send(
+            EMAILJS_CONFIG.SERVICE_ID,
+            EMAILJS_CONFIG.TEMPLATE_ID,
+            templateParams
+        );
+
+        return {
+            success: true,
+            message: 'Email đã được gửi thành công!',
+            response: response
+        };
+
+    } catch (error) {
+        console.error('Lỗi khi gửi email:', error);
+        
+        // Xử lý các loại lỗi khác nhau
+        let errorMessage = 'Có lỗi xảy ra khi gửi email. ';
+        
+        if (error.text) {
+            errorMessage += error.text;
+        } else if (error.message) {
+            errorMessage += error.message;
+        } else {
+            errorMessage += 'Vui lòng thử lại sau.';
+        }
+
+        return {
+            success: false,
+            message: errorMessage,
+            error: error
+        };
+    }
+}
+
+// Alternative: Send via Formspree (Backup method)
+async function sendViaFormspree(formData) {
+    try {
+        const response = await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: formData.get('from_name'),
+                email: formData.get('from_email'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            })
+        });
+
+        if (response.ok) {
+            return {
+                success: true,
+                message: 'Email đã được gửi thành công qua Formspree!'
+            };
+        } else {
+            throw new Error('Lỗi từ server Formspree');
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: 'Lỗi khi gửi qua Formspree: ' + error.message
+        };
+    }
+}
     const successDiv = document.createElement('div');
     successDiv.innerHTML = `
         <div style="
@@ -278,8 +377,66 @@ function showSuccessMessage() {
     }, 5000);
 }
 
+// Show Success Message
+function showSuccessMessage(message = 'Tin nhắn đã được gửi thành công! Tôi sẽ phản hồi sớm nhất có thể.') {
+    const successDiv = document.createElement('div');
+    successDiv.innerHTML = `
+        <div style="
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+            text-align: center;
+        ">
+            <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
+            ${message}
+        </div>
+    `;
+    
+    contactForm.insertBefore(successDiv.firstElementChild, contactForm.firstElementChild);
+    
+    // Remove success message after 5 seconds
+    setTimeout(() => {
+        const successMessage = contactForm.querySelector('div[style*="background: #d4edda"]');
+        if (successMessage) {
+            successMessage.remove();
+        }
+    }, 5000);
+}
+
+// Show Error Message
+function showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.innerHTML = `
+        <div style="
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        ">
+            <i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i>
+            ${message}
+        </div>
+    `;
+    
+    contactForm.insertBefore(errorDiv.firstElementChild, contactForm.firstElementChild);
+    
+    // Remove error message after 5 seconds
+    setTimeout(() => {
+        const errorMessage = contactForm.querySelector('div[style*="background: #f8d7da"]');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+    }, 5000);
+}
+
 // Handle Form Submission
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData(contactForm);
@@ -292,19 +449,47 @@ function handleFormSubmit(e) {
         return;
     }
     
-    // Simulate form submission
+    // Update button state
     const submitBtn = contactForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
+    const btnText = submitBtn.querySelector('.btn-text');
+    const originalText = btnText.innerHTML;
     
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
     submitBtn.disabled = true;
+    btnText.innerHTML = 'Đang gửi...';
+    submitBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
     
-    setTimeout(() => {
-        submitBtn.innerHTML = originalText;
+    try {
+        // Thử gửi qua EmailJS trước
+        let result = await sendEmail(formData);
+        
+        // Nếu EmailJS thất bại, thử Formspree
+        if (!result.success && typeof sendViaFormspree === 'function') {
+            console.log('EmailJS failed, trying Formspree...');
+            result = await sendViaFormspree(formData);
+        }
+        
+        if (result.success) {
+            showSuccessMessage(result.message);
+            contactForm.reset();
+            
+            // Reset form focus states
+            const formInputs = document.querySelectorAll('.form-group input, .form-group textarea');
+            formInputs.forEach(input => {
+                input.parentNode.classList.remove('focused');
+            });
+        } else {
+            showErrorMessage(result.message);
+        }
+        
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        showErrorMessage('Có lỗi không mong muốn xảy ra. Vui lòng thử lại sau hoặc liên hệ trực tiếp qua email.');
+    } finally {
+        // Reset button state
         submitBtn.disabled = false;
-        showSuccessMessage();
-        contactForm.reset();
-    }, 2000);
+        btnText.innerHTML = originalText;
+        submitBtn.querySelector('i').className = 'fas fa-paper-plane';
+    }
 }
 
 // Parallax Effect
@@ -366,6 +551,9 @@ function addAnimationStyles() {
 function init() {
     // Add animation styles
     addAnimationStyles();
+    
+    // Initialize EmailJS
+    initEmailJS();
     
     // Start typing animation
     if (typingText) {

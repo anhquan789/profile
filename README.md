@@ -97,11 +97,35 @@ Thêm vào `<head>` trong `index.html`:
 
 ### Thêm contact form backend
 
-Để form liên hệ hoạt động thực sự, bạn có thể sử dụng:
+Form liên hệ đã được tích hợp sẵn với EmailJS để gửi email thực sự. 
 
-1. **Formspree**: https://formspree.io/
-2. **Netlify Forms**: https://www.netlify.com/products/forms/
-3. **EmailJS**: https://www.emailjs.com/
+**Cách cấu hình:**
+
+1. **EmailJS (Khuyến nghị)**: 
+   - Xem file `EMAILJS_SETUP.md` để hướng dẫn chi tiết
+   - Miễn phí 200 email/tháng
+   - Không cần backend server
+
+2. **Formspree**: 
+   - Truy cập https://formspree.io/
+   - Tạo form và lấy endpoint URL
+   - Cập nhật trong `script.js`
+
+3. **Netlify Forms**: 
+   - Tự động hoạt động khi deploy trên Netlify
+   - Thêm `data-netlify="true"` vào form
+
+**Để kích hoạt ngay:**
+1. Mở file `script.js`
+2. Tìm phần `EMAILJS_CONFIG`
+3. Thay thế với thông tin EmailJS của bạn:
+   ```javascript
+   const EMAILJS_CONFIG = {
+       SERVICE_ID: 'your_service_id',
+       TEMPLATE_ID: 'your_template_id', 
+       PUBLIC_KEY: 'your_public_key'
+   };
+   ```
 
 ### Thêm blog
 
