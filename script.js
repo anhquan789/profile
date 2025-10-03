@@ -205,8 +205,11 @@ const EMAILJS_CONFIG = {
 // Initialize EmailJS
 function initEmailJS() {
     // Khởi tạo EmailJS với public key
-    if (typeof emailjs !== 'undefined') {
+    if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
         emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+        console.log('EmailJS initialized successfully');
+    } else {
+        console.warn('EmailJS not configured properly. Please update EMAILJS_CONFIG in script.js');
     }
 }
 
@@ -349,32 +352,6 @@ async function sendViaFormspree(formData) {
             message: 'Lỗi khi gửi qua Formspree: ' + error.message
         };
     }
-}
-    const successDiv = document.createElement('div');
-    successDiv.innerHTML = `
-        <div style="
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 1px solid #c3e6cb;
-            text-align: center;
-        ">
-            <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
-            Tin nhắn đã được gửi thành công! Tôi sẽ phản hồi sớm nhất có thể.
-        </div>
-    `;
-    
-    contactForm.insertBefore(successDiv.firstElementChild, contactForm.firstElementChild);
-    
-    // Remove success message after 5 seconds
-    setTimeout(() => {
-        const successMessage = contactForm.querySelector('div[style*="background: #d4edda"]');
-        if (successMessage) {
-            successMessage.remove();
-        }
-    }, 5000);
 }
 
 // Show Success Message

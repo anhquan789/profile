@@ -30,9 +30,19 @@ git push origin main
 2. Chọn **Settings** > **Pages**
 3. Trong phần **Source**, chọn **Deploy from a branch**
 4. Chọn branch **main** và folder **/ (root)**
-5. Clicks **Save**
+5. Click **Save**
 
 Website sẽ được deploy tại: `https://anhquan789.github.io/profile/`
+
+**⚡ Quick Test**: Sau khi deploy, truy cập `https://anhquan789.github.io/profile/test.html` để kiểm tra
+
+### Bước 3: Troubleshooting (nếu cần)
+
+**Nếu website không hiển thị:**
+1. Đảm bảo repository là **public**
+2. Kiểm tra file `index.html` ở root directory
+3. Đợi 5-10 phút sau khi enable Pages
+4. Xem file `DEPLOY_GUIDE.md` để troubleshooting chi tiết
 
 ## 📁 Cấu trúc project
 
